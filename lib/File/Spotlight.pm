@@ -6,7 +6,7 @@ our $VERSION = '0.01';
 
 use Carp;
 use Mac::Tie::PList;
-use IPC::Open2;
+use String::ShellQuote;
 
 sub new {
     my $class = shift;
@@ -33,14 +33,12 @@ sub list {
 sub _run_mdfind {
     my($self, $path, $query) = @_;
 
-    my($out, $in);
-    my $pid = open2($out, $in, 'mdfind', '-onlyin', $path, $query);
+    my $cmd = 'mdfind -onlyin ' . shell_quote($path) . ' ' . shell_quote($query);
 
-    local $_;
     my @files;
-    while (<$out>) {
+    for my $file (grep length, split /\n/, qx($cmd)) {
         chomp;
-        push @files, $_;
+        push @files, $file;
     }
 
     return @files;
