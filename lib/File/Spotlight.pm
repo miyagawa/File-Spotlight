@@ -36,6 +36,7 @@ sub _run_mdfind {
     my($out, $in);
     my $pid = open2($out, $in, 'mdfind', '-onlyin', $path, $query);
 
+    local $_;
     my @files;
     while (<$out>) {
         chomp;
@@ -59,7 +60,7 @@ __END__
 
 =encoding utf-8
 
-=for stopwords savedSearch .savedSearch
+=for stopwords savedSearch .savedSearch plist
 
 =head1 NAME
 
@@ -79,6 +80,29 @@ File::Spotlight - List files from Smart Folder by reading .savedSearch files
 File::Spotlight is a simple module to parse I<.savedSearch> Smart
 Folder definition and get the result by executing the Spotlight query
 by C<mdfind> command.
+
+This is a low-level module to open and execute the saved search plist
+files. In your application you might better wrap or integrate this
+module with higher-level file system abstraction like L<IO::Dir>,
+L<Path::Class::Dir> or L<Filesys::Virtual>.
+
+=head1 METHODS
+
+=over 4
+
+=item new
+
+Creates a new File::Spotlight object.
+
+=item list
+
+  @files = $spotlight->list($saved_search);
+
+Given the file path to I<.savedSearch> (usually in C<~/Library/Saved
+Searches/> folder), executes the query and returns the list of files
+found in the smart folder.
+
+=back
 
 =head1 AUTHOR
 
