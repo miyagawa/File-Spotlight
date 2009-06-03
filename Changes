@@ -1,4 +1,7 @@
 Revision history for Perl extension File::Spotlight
 
+0.02  Wed Jun  3 04:33:29 PDT 2009
+        - Do not use IPC::Open2 to run on HTTP::Engine (and HTTP::Server::Simple)
+
 0.01  Wed Jun  3 02:28:22 2009
         - original version
