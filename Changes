@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Spotlight
 
+0.03  Wed Jun  3 10:52:47 PDT 2009
+        - Parsing plist falls back to Mac::PropertyList when running without Foundation.pm (non-Apple perl)
+          (Thanks to hanekomu)
+
 0.02  Wed Jun  3 04:33:29 PDT 2009
         - Do not use IPC::Open2 to run on HTTP::Engine (and HTTP::Server::Simple)
 
