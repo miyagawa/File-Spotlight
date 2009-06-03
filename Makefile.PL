@@ -2,7 +2,11 @@ use inc::Module::Install;
 name 'File-Spotlight';
 all_from 'lib/File/Spotlight.pm';
 
-requires 'Mac::Tie::PList';
+if (eval { require Foundation }) {
+    requires 'Mac::Tie::PList';
+} else {
+    requires 'Mac::PropertyList';
+}
 
 build_requires 'Test::More';
 use_test_base;

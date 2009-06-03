@@ -5,8 +5,8 @@ use 5.008_001;
 our $VERSION = '0.02';
 
 use Carp;
-use Mac::Tie::PList;
 use String::ShellQuote;
+use Scalar::Util qw(blessed);
 
 sub new {
     my $class = shift;
@@ -16,10 +16,11 @@ sub new {
 sub list {
     my($self, $file) = @_;
 
-    my $plist = Mac::Tie::PList->new_from_file($file)
+    my $plist = $self->parse_plist($file)
         or croak "Can't open savedSearch file $file";
 
     my $query = $plist->{RawQuery};
+       $query = _get_value($query) if blessed $query;
     my @search_paths = map $self->_transform_path($_), @{ $plist->{SearchCriteria}{FXScopeArrayOfPaths} || [] };
 
     my @files;
@@ -28,6 +29,17 @@ sub list {
     }
 
     return @files;
+}
+
+sub parse_plist {
+    my($self, $file) = @_;
+
+    if (eval { require Mac::Tie::PList }) {
+        return Mac::Tie::PList->new_from_file($file);
+    } else {
+        require Mac::PropertyList;
+        Mac::PropertyList::parse_plist_file($file);
+    }
 }
 
 sub _run_mdfind {
@@ -46,12 +58,26 @@ sub _run_mdfind {
 
 sub _transform_path {
     my($self, $path) = @_;
+    $path = _get_value($path) if blessed $path;
 
     return $ENV{HOME} if $path eq 'kMDQueryScopeHome';
     return "/"        if $path eq 'kMDQueryScopeComputer';
 
     return $path;
 }
+
+my %decode = (amp => '&', quot => '"', lt => '<', gt => '>');
+
+sub _get_value {
+    my $string = shift;
+
+    # Mac::PropertyList doesn't decode XML escapes
+    $string = $string->value;
+    $string =~ s/&(amp|quot|lt|gt);/$decode{$1}/eg;
+
+    return $string;
+}
+
 
 1;
 __END__
