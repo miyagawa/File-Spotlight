@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Spotlight
 
+0.04  Thu Jun  4 23:34:39 PDT 2009
+        - CHANGED API: takes .savedSearch in new() rather than list() to represnt Smart Folder as an object.
+
 0.03  Wed Jun  3 10:52:47 PDT 2009
         - Parsing plist falls back to Mac::PropertyList when running without Foundation.pm (non-Apple perl)
           (Thanks to hanekomu)
