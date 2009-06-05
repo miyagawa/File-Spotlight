@@ -15,7 +15,7 @@ run {
         is $query, $block->query;
     };
 
-    File::Spotlight->new->list($block->file);
+    File::Spotlight->new($block->file)->list;
 };
 
 __DATA__

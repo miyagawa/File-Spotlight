@@ -10,22 +10,48 @@ use Scalar::Util qw(blessed);
 
 sub new {
     my $class = shift;
-    bless {}, $class;
+    my($file) = @_;
+
+    my $self = bless { path => $file }, $class;
+    $self->init() if $file;
+
+    return $self;
 }
 
-sub list {
-    my($self, $file) = @_;
+sub path {
+    my $self = shift;
+    if (@_) {
+        $self->{path} = shift;
+        $self->init;
+    }
+    $self->{path};
+}
 
-    my $plist = $self->parse_plist($file)
-        or croak "Can't open savedSearch file $file";
+sub init {
+    my $self = shift;
+
+    my $plist = $self->parse_plist($self->path)
+        or croak "Can't open savedSearch file " . $self->path;
 
     my $query = $plist->{RawQuery};
        $query = _get_value($query) if blessed $query;
     my @search_paths = map $self->_transform_path($_), @{ $plist->{SearchCriteria}{FXScopeArrayOfPaths} || [] };
 
+    $self->{query} = $query;
+    $self->{search_paths} = \@search_paths;
+}
+
+sub list {
+    my $self = shift;
+
+    if (@_) {
+        # backward compatiblity
+        $self = (ref $self)->new(@_);
+    }
+
     my @files;
-    for my $path (@search_paths) {
-        push @files, $self->_run_mdfind($path, $query);
+    for my $path (@{$self->{search_paths}}) {
+        push @files, $self->_run_mdfind($path, $self->{query});
     }
 
     return @files;
@@ -94,10 +120,10 @@ File::Spotlight - List files from Smart Folder by reading .savedSearch files
 
   use File::Spotlight;
 
-  my $search = "$ENV{HOME}/Library/Saved Searches/New Smart Folder.savedSearch";
+  my $path = "$ENV{HOME}/Library/Saved Searches/New Smart Folder.savedSearch";
 
-  my $spotlight = File::Spotlight->new;
-  my @found     = $spotlight->list($search);
+  my $folder = File::Spotlight->new($path);
+  my @found  = $folder->list();
 
 =head1 DESCRIPTION
 
@@ -116,15 +142,17 @@ L<Path::Class::Dir> or L<Filesys::Virtual>.
 
 =item new
 
-Creates a new File::Spotlight object.
+  $folder = File::Spotlight->new("/path/to/foo.savedSearch");
+
+Creates a new File::Spotlight object with the I<.savedSearch> file
+path usually in C<~/Library/Saved Searches> folder.
 
 =item list
 
-  @files = $spotlight->list($saved_search);
+  @files = $folder->list;
 
-Given the file path to I<.savedSearch> (usually in C<~/Library/Saved
-Searches/> folder), executes the query and returns the list of files
-found in the smart folder.
+Executes the saved Spotlight query and returns the list of files found
+in the smart folder.
 
 =back
 
