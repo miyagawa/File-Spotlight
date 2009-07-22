@@ -29,4 +29,5 @@ t/textapp.savedSearch
 xt/perlcritic.t
 xt/pod.t
 xt/podspell.t
+xt/query.t
 xt/synopsis.t

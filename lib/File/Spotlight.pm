@@ -134,8 +134,8 @@ File::Spotlight - List files from Smart Folder by reading .savedSearch files
 =head1 DESCRIPTION
 
 File::Spotlight is a simple module to parse I<.savedSearch> Smart
-Folder definition and get the result by executing the Spotlight query
-by C<mdfind> command.
+Folder definition, run the query and get the results with OS X
+Spotlight binding via Mac::Spotlight.
 
 This is a low-level module to open and execute the saved search plist
 files. In your application you might better wrap or integrate this
@@ -173,6 +173,6 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<http://www.macosxhints.com/dlfiles/spotlightls.txt>
+L<Mac::Spotlight::MDQuery> L<http://www.macosxhints.com/dlfiles/spotlightls.txt>
 
 =cut
