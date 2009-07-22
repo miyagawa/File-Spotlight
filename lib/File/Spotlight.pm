@@ -5,7 +5,8 @@ use 5.008_001;
 our $VERSION = '0.04';
 
 use Carp;
-use String::ShellQuote;
+use Mac::Spotlight::MDQuery ':constants';
+use Mac::Spotlight::MDItem  ':constants';
 use Scalar::Util qw(blessed);
 
 sub new {
@@ -35,7 +36,7 @@ sub init {
 
     my $query = $plist->{RawQuery};
        $query = _get_value($query) if blessed $query;
-    my @search_paths = map $self->_transform_path($_), @{ $plist->{SearchCriteria}{FXScopeArrayOfPaths} || [] };
+    my @search_paths = @{ $plist->{SearchCriteria}{FXScopeArrayOfPaths} || [] };
 
     $self->{query} = $query;
     $self->{search_paths} = \@search_paths;
@@ -51,6 +52,7 @@ sub list {
 
     my @files;
     for my $path (@{$self->{search_paths}}) {
+        $path = _get_value($path) if blessed $path;
         push @files, $self->_run_mdfind($path, $self->{query});
     }
 
@@ -71,25 +73,29 @@ sub parse_plist {
 sub _run_mdfind {
     my($self, $path, $query) = @_;
 
-    my $cmd = 'mdfind -onlyin ' . shell_quote($path) . ' ' . shell_quote($query);
+    my $mq = Mac::Spotlight::MDQuery->new($query);
+    $mq->setScope( $self->_scope($path) );
+    $mq->execute;
+    $mq->stop;
 
     my @files;
-    for my $file (grep length, split /\n/, qx($cmd)) {
-        chomp $file;
-        push @files, $file;
+    for my $result ($mq->getResults) {
+        push @files, $result->get(kMDItemPath);
     }
 
     return @files;
 }
 
-sub _transform_path {
-    my($self, $path) = @_;
-    $path = _get_value($path) if blessed $path;
+# string => constant
+my %scope = (
+   kMDQueryScopeHome     => kMDQueryScopeHome,
+   kMDQueryScopeComputer => kMDQueryScopeComputer,
+   kMDQueryScopeNetwork  => kMDQueryScopeNetwork,
+);
 
-    return $ENV{HOME} if $path eq 'kMDQueryScopeHome';
-    return "/"        if $path eq 'kMDQueryScopeComputer';
-
-    return $path;
+sub _scope {
+    my($self, $str) = @_;
+    $scope{$str};
 }
 
 my %decode = (amp => '&', quot => '"', lt => '<', gt => '>');
