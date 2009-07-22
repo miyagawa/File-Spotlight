@@ -12,7 +12,7 @@ run {
 
     local *File::Spotlight::_run_mdfind = sub {
         my($self, $path, $query) = @_;
-        is $query, $block->query;
+        is $query, $block->query, $query;
     };
 
     File::Spotlight->new($block->file)->list;

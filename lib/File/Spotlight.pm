@@ -75,7 +75,7 @@ sub _run_mdfind {
 
     my @files;
     for my $file (grep length, split /\n/, qx($cmd)) {
-        chomp;
+        chomp $file;
         push @files, $file;
     }
 
