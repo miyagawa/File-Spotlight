@@ -2,7 +2,7 @@ package File::Spotlight;
 
 use strict;
 use 5.008_001;
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Carp;
 use Mac::Spotlight::MDQuery ':constants';
