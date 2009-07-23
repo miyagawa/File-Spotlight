@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Spotlight
 
+0.05  Thu Jul 23 13:33:21 PDT 2009
+        - Now uses the updated Mac::Spotlight::* binding to avoid forking subprocess.
+          (This might not work with OS X system default Perl)
+
 0.04  Thu Jun  4 23:34:39 PDT 2009
         - CHANGED API: takes .savedSearch in new() rather than list() to represnt Smart Folder as an object.
 

@@ -8,7 +8,7 @@ if (eval { require Foundation }) {
     requires 'Mac::PropertyList';
 }
 
-requires 'Mac::Spotlight', 0.02;
+requires 'Mac::Spotlight::MDQuery', 0.02;
 
 build_requires 'Test::More';
 use_test_base;
